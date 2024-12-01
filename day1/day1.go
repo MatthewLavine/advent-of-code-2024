@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"os"
@@ -12,15 +13,24 @@ import (
 )
 
 const (
-	inputFile = "input.txt"
+	demoInputFile = "demo.txt"
+	inputFile     = "input.txt"
 )
 
 var (
 	numberRegex = regexp.MustCompile("^[0-9]*$")
+	demo        = flag.Bool("demo", false, "Use demo input")
 )
 
 func main() {
-	input, err := readInputFile()
+	flag.Parse()
+
+	path := inputFile
+	if *demo {
+		path = demoInputFile
+	}
+
+	input, err := readInputFile(path)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -43,8 +53,8 @@ func main() {
 	fmt.Printf("Similarity: %d\n", similar)
 }
 
-func readInputFile() (string, error) {
-	bytes, err := os.ReadFile(inputFile)
+func readInputFile(file string) (string, error) {
+	bytes, err := os.ReadFile(file)
 	if err != nil {
 		return "", err
 	}
