@@ -1,29 +1,18 @@
-# Compiled object files
-*.o
-
-# Compiled dynamic libraries
-*.so
-
-# Compiled static libraries
-*.a
-
-# Executable files
-*.out
+# Binaries for programs and plugins
 *.exe
+*.exe~
+*.dll
+*.so
+*.dylib
 
-# Debug files
-*.dSYM/
-*.d
+# Test binary, build with `go test -c`
+*.test
 
-# Temporary files
-*.tmp
-*.temp
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
 
-# Backup files
-*.bak
-*.swp
-*.swo
-*.orig
+# Dependency directories (remove the comment below if you use Go modules)
+vendor/
 
-# Core dumps
-core
+# Go workspace file
+go.work
