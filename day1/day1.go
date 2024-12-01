@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"regexp"
+	"runtime/pprof"
 	"slices"
 	"sort"
 	"strconv"
@@ -20,10 +21,23 @@ const (
 var (
 	numberRegex = regexp.MustCompile("^[0-9]*$")
 	demo        = flag.Bool("demo", false, "Use demo input")
+	enablePprof = flag.Bool("pprof", false, "Enable pprof")
 )
 
 func main() {
 	flag.Parse()
+
+	if *enablePprof {
+		f, err := os.Create("profile.prof")
+		if err != nil {
+			panic(err)
+		}
+		defer f.Close()
+		if err := pprof.StartCPUProfile(f); err != nil {
+			panic(err)
+		}
+		defer pprof.StopCPUProfile()
+	}
 
 	path := inputFile
 	if *demo {
@@ -103,13 +117,17 @@ func calculateListDistance(left, right []int) (int, error) {
 	}
 
 	diffs := make([]int, len(left))
+	leftSorted := slices.Clone(left)
+	sort.Ints(leftSorted)
+	rightSorted := slices.Clone(right)
+	sort.Ints(rightSorted)
 
 	for i := 0; i < len(left); i++ {
-		l, err := nthSmallest(i, left)
+		l, err := nthSmallest(i, leftSorted)
 		if err != nil {
 			return -1, err
 		}
-		r, err := nthSmallest(i, right)
+		r, err := nthSmallest(i, rightSorted)
 		if err != nil {
 			return -1, err
 		}
@@ -128,13 +146,11 @@ func calculateListDistance(left, right []int) (int, error) {
 	return distance, nil
 }
 
-func nthSmallest(n int, arr []int) (int, error) {
-	if n > len(arr) {
+func nthSmallest(n int, sortedArr []int) (int, error) {
+	if n > len(sortedArr) {
 		return -1, fmt.Errorf("n is greater than the length of the array")
 	}
-	copy := slices.Clone(arr)
-	sort.Ints(copy)
-	return copy[n], nil
+	return sortedArr[n], nil
 }
 
 func calculateListSimilarity(left, right []int) (int, error) {
