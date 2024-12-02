@@ -82,26 +82,39 @@ func parseInput(input string) ([][]int, error) {
 
 func processReports(reports [][]int) {
 	rawSafeReports := 0
-	dampendedSafeReports := 0
+	dampenedSafeReports := 0
 	for _, report := range reports {
-		if isReportSafe(report, false) {
+		if isReportSafe(report) {
 			rawSafeReports++
 		}
-		if isReportSafe(report, true) {
-			dampendedSafeReports++
+		if isReportSafeDampened(report) {
+			dampenedSafeReports++
 		}
 	}
 	fmt.Printf("Safe reports: %d\n", rawSafeReports)
-	fmt.Printf("Dampened safe reports: %d\n", dampendedSafeReports)
+	fmt.Printf("Dampened safe reports: %d\n", dampenedSafeReports)
 }
 
-func isReportSafe(report []int, dampener bool) bool {
+func isReportSafeDampened(report []int) bool {
+	for i := 0; i < len(report); i++ {
+		// Copy the report
+		dampened := make([]int, len(report))
+		copy(dampened, report)
+		// Remove the current level
+		dampened = remove(dampened, i)
+		if isReportSafe(dampened) {
+			return true
+		}
+	}
+	return false
+}
+
+func isReportSafe(report []int) bool {
 	first := true
 	second := false
 	prev := 0
 	increasing := false
 	decreasing := false
-	ignored := false
 	for _, level := range report {
 		if first {
 			first = false
@@ -118,39 +131,22 @@ func isReportSafe(report []int, dampener bool) bool {
 			}
 		}
 		if increasing && level < prev {
-			if dampener {
-				if ignored {
-					return false
-				}
-				ignored = true
-				continue
-			}
 			return false
 		}
 		if decreasing && level > prev {
-			if dampener {
-				if ignored {
-					return false
-				}
-				ignored = true
-				continue
-			}
 			return false
 		}
 		diff := diff(level, prev)
 		if diff < 1 || diff > 3 {
-			if dampener {
-				if ignored {
-					return false
-				}
-				ignored = true
-				continue
-			}
 			return false
 		}
 		prev = level
 	}
 	return true
+}
+
+func remove(slice []int, s int) []int {
+	return append(slice[:s], slice[s+1:]...)
 }
 
 func diff(a, b int) int {

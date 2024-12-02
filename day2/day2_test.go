@@ -23,7 +23,12 @@ func TestIsReportSafe(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		result := isReportSafe(test.report, test.dampener)
+		var result bool
+		if test.dampener {
+			result = isReportSafeDampened(test.report)
+		} else {
+			result = isReportSafe(test.report)
+		}
 		if result != test.expected {
 			t.Errorf("isReportSafe(%v, %v) = %v; expected %v", test.report, test.dampener, result, test.expected)
 		}
