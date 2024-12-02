@@ -50,7 +50,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Data: %v\n", reports)
+	processReports(reports)
 }
 
 func readInputFile(file string) (string, error) {
@@ -78,4 +78,84 @@ func parseInput(input string) ([][]int, error) {
 		reports = append(reports, report)
 	}
 	return reports, nil
+}
+
+func processReports(reports [][]int) {
+	rawSafeReports := 0
+	dampendedSafeReports := 0
+	for _, report := range reports {
+		if isReportSafe(report, false) {
+			rawSafeReports++
+		}
+		if isReportSafe(report, true) {
+			dampendedSafeReports++
+		}
+	}
+	fmt.Printf("Safe reports: %d\n", rawSafeReports)
+	fmt.Printf("Dampened safe reports: %d\n", dampendedSafeReports)
+}
+
+func isReportSafe(report []int, dampener bool) bool {
+	first := true
+	second := false
+	prev := 0
+	increasing := false
+	decreasing := false
+	ignored := false
+	for _, level := range report {
+		if first {
+			first = false
+			second = true
+			prev = level
+			continue
+		}
+		if second {
+			second = false
+			if level > prev {
+				increasing = true
+			} else if level < prev {
+				decreasing = true
+			}
+		}
+		if increasing && level < prev {
+			if dampener {
+				if ignored {
+					return false
+				}
+				ignored = true
+				continue
+			}
+			return false
+		}
+		if decreasing && level > prev {
+			if dampener {
+				if ignored {
+					return false
+				}
+				ignored = true
+				continue
+			}
+			return false
+		}
+		diff := diff(level, prev)
+		if diff < 1 || diff > 3 {
+			if dampener {
+				if ignored {
+					return false
+				}
+				ignored = true
+				continue
+			}
+			return false
+		}
+		prev = level
+	}
+	return true
+}
+
+func diff(a, b int) int {
+	if a > b {
+		return a - b
+	}
+	return b - a
 }
