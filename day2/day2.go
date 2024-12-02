@@ -110,20 +110,15 @@ func isReportSafeDampened(report []int) bool {
 }
 
 func isReportSafe(report []int) bool {
-	first := true
-	second := false
 	prev := 0
 	increasing := false
 	decreasing := false
-	for _, level := range report {
-		if first {
-			first = false
-			second = true
+	for i, level := range report {
+		if i == 0 {
 			prev = level
 			continue
 		}
-		if second {
-			second = false
+		if i == 1 {
 			if level > prev {
 				increasing = true
 			} else if level < prev {
