@@ -32,3 +32,6 @@ go.work
 # Tmp
 tmp/
 tmp
+
+# Real inputs
+input.txt
