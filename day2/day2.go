@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 	"runtime/pprof"
 	"strconv"
 	"strings"
@@ -17,7 +16,6 @@ const (
 )
 
 var (
-	numberRegex = regexp.MustCompile("^[0-9]*$")
 	demo        = flag.Bool("demo", false, "Use demo input")
 	enablePprof = flag.Bool("pprof", false, "Enable pprof")
 )
