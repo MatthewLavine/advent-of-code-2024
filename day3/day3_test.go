@@ -25,6 +25,17 @@ func TestParseInput(t *testing.T) {
 			wantErr: false,
 		},
 		{
+			name:  "Valid add instructions",
+			input: "add(2,3)\nadd[7,2]___add(4,5)\n!!add(6,7)",
+			regex: partOneInstructionRegex,
+			expected: []Instruction{
+				{"add", 2, 3},
+				{"add", 4, 5},
+				{"add", 6, 7},
+			},
+			wantErr: false,
+		},
+		{
 			name:  "Valid do and don't instructions",
 			input: "do()\nmul(2,3)\ndon't()\nmul(4,5)\ndo()\nmul(6,7)",
 			regex: partTwoInstructionRegex,
@@ -79,6 +90,16 @@ func TestCompute(t *testing.T) {
 				{"mul", 6, 7},
 			},
 			expected: 68,
+			wantErr:  false,
+		},
+		{
+			name: "Valid add instructions",
+			instructions: []Instruction{
+				{"add", 2, 3},
+				{"add", 4, 5},
+				{"add", 6, 7},
+			},
+			expected: 27,
 			wantErr:  false,
 		},
 		{

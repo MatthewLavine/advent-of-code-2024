@@ -20,9 +20,9 @@ var (
 	demo        = flag.Bool("demo", false, "Use demo input")
 	enablePprof = flag.Bool("pprof", false, "Enable pprof")
 
-	partOneInstructionRegex = regexp.MustCompile(`mul\(\d+,\d+\)`)
+	partOneInstructionRegex = regexp.MustCompile(`(mul|add|sub|div)\(\d+,\d+\)`)
 
-	partTwoInstructionRegex = regexp.MustCompile(`do\(\)|don\'t\(\)|mul\(\d+,\d+\)`)
+	partTwoInstructionRegex = regexp.MustCompile(`do\(\)|don\'t\(\)|(mul|add|sub|div)\(\d+,\d+\)`)
 )
 
 type Instruction struct {
@@ -132,6 +132,12 @@ func compute(instructions []Instruction) (int, error) {
 		switch instruction.operation {
 		case "mul":
 			ret += instruction.a * instruction.b
+		case "add":
+			ret += instruction.a + instruction.b
+		case "sub":
+			ret += instruction.a - instruction.b
+		case "div":
+			ret += instruction.a / instruction.b
 		}
 	}
 	return ret, nil
