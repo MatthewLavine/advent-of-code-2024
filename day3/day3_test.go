@@ -143,3 +143,22 @@ func equalInstructions(a, b []Instruction) bool {
 	}
 	return true
 }
+
+func BenchmarkParseInput(b *testing.B) {
+	input := "mul(2,3)\nmul[7,2]___mul(4,5)\n!!mul(6,7)"
+	regex := partOneInstructionRegex
+	for i := 0; i < b.N; i++ {
+		parseInput(input, regex)
+	}
+}
+
+func BenchmarkCompute(b *testing.B) {
+	instructions := []Instruction{
+		{"mul", 2, 3},
+		{"mul", 4, 5},
+		{"mul", 6, 7},
+	}
+	for i := 0; i < b.N; i++ {
+		compute(instructions)
+	}
+}
