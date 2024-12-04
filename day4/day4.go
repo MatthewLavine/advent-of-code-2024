@@ -75,7 +75,9 @@ func parseInput(input string) ([][]string, error) {
 func processMatrix(matrix [][]string) (int, int) {
 	xmasCount := 0
 	masCount := 0
-	printMatrix(matrix)
+	if *verbose {
+		printMatrix(matrix)
+	}
 	for i, row := range matrix {
 		for j := range row {
 			xmasCount += startsXmas(matrix, i, j)
@@ -176,28 +178,36 @@ func startsMas(matrix [][]string, row, col int) int {
 	// Top to bottom
 	if row+2 < len(matrix) && col+2 < len(matrix[row]) {
 		if matrix[row][col] == "M" && matrix[row+1][col+1] == "A" && matrix[row+2][col+2] == "S" && matrix[row][col+2] == "M" && matrix[row+2][col] == "S" {
-			fmt.Printf("Found top to bottom x-mas at %d, %d\n", row+1, col+1)
+			if *verbose {
+				fmt.Printf("Found top to bottom x-mas at %d, %d\n", row+1, col+1)
+			}
 			found++
 		}
 	}
 	// Left to right
 	if row+2 < len(matrix) && col+2 < len(matrix[row]) {
 		if matrix[row][col] == "M" && matrix[row+1][col+1] == "A" && matrix[row+2][col+2] == "S" && matrix[row+2][col] == "M" && matrix[row][col+2] == "S" {
-			fmt.Printf("Found left to right x-mas at %d, %d\n", row+1, col+1)
+			if *verbose {
+				fmt.Printf("Found left to right x-mas at %d, %d\n", row+1, col+1)
+			}
 			found++
 		}
 	}
 	// Bottom to top
 	if row-2 >= 0 && col-2 >= 0 {
 		if matrix[row][col] == "M" && matrix[row-1][col-1] == "A" && matrix[row-2][col-2] == "S" && matrix[row][col-2] == "M" && matrix[row-2][col] == "S" {
-			fmt.Printf("Found bottom to top x-mas at %d, %d\n", row+1, col+1)
+			if *verbose {
+				fmt.Printf("Found bottom to top x-mas at %d, %d\n", row+1, col+1)
+			}
 			found++
 		}
 	}
 	// Right to left
 	if row-2 >= 0 && col-2 >= 0 {
 		if matrix[row][col] == "M" && matrix[row-1][col-1] == "A" && matrix[row-2][col-2] == "S" && matrix[row-2][col] == "M" && matrix[row][col-2] == "S" {
-			fmt.Printf("Found right to left x-mas at %d, %d\n", row+1, col+1)
+			if *verbose {
+				fmt.Printf("Found right to left x-mas at %d, %d\n", row+1, col+1)
+			}
 			found++
 		}
 	}
