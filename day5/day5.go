@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"runtime/pprof"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -57,6 +58,13 @@ func main() {
 
 	fmt.Println(rules)
 	fmt.Println(updates)
+
+	sum, err := compute(rules, updates)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Middle sum: %d\n", sum)
 }
 
 func readInputFile(file string) (string, error) {
@@ -109,4 +117,28 @@ func stringListToIntList(strList []string) ([]int, error) {
 		intList = append(intList, i)
 	}
 	return intList, nil
+}
+
+func compute(rules []rule, updates [][]int) (int, error) {
+	var sum int
+	for _, update := range updates {
+		satisfiesRules := true
+		for _, rule := range rules {
+			lValid := slices.Index(update, rule.l)
+			rValid := slices.Index(update, rule.r)
+			if lValid == -1 || rValid == -1 {
+				continue
+			}
+			if lValid < rValid {
+				fmt.Printf("Update %v satisfies rule %v\n", update, rule)
+			} else {
+				satisfiesRules = false
+				fmt.Printf("Update %v does not satisfy rule %v\n", update, rule)
+			}
+		}
+		if satisfiesRules {
+			sum += update[len(update)/2]
+		}
+	}
+	return sum, nil
 }
