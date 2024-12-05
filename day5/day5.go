@@ -56,12 +56,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sum, err := compute(rules, updates)
+	sum, err := computePart1(rules, updates)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Middle sum: %d\n", sum)
+	fmt.Printf("Part1 sum: %d\n", sum)
+
+	sum, err = computePart2(rules, updates)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Part2 sum: %d\n", sum)
 }
 
 func readInputFile(file string) (string, error) {
@@ -116,8 +123,9 @@ func stringListToIntList(strList []string) ([]int, error) {
 	return intList, nil
 }
 
-func compute(rules []rule, updates [][]int) (int, error) {
+func computePart1(rules []rule, updates [][]int) (int, error) {
 	var sum int
+nextUpdate:
 	for _, update := range updates {
 		satisfiesRules := true
 		for _, rule := range rules {
@@ -135,6 +143,7 @@ func compute(rules []rule, updates [][]int) (int, error) {
 				if *verbose {
 					fmt.Printf("Update %v does not satisfy rule %v\n", update, rule)
 				}
+				continue nextUpdate
 			}
 		}
 		if satisfiesRules {
@@ -142,4 +151,44 @@ func compute(rules []rule, updates [][]int) (int, error) {
 		}
 	}
 	return sum, nil
+}
+
+func computePart2(rules []rule, updates [][]int) (int, error) {
+	var badUpdates [][]int
+nextUpdate:
+	for _, update := range updates {
+		for _, rule := range rules {
+			lValid := slices.Index(update, rule.l)
+			rValid := slices.Index(update, rule.r)
+			if lValid == -1 || rValid == -1 {
+				continue
+			}
+			if lValid >= rValid {
+				// Collect bad updates.
+				badUpdates = append(badUpdates, update)
+				continue nextUpdate
+			}
+		}
+	}
+	var sum int
+	for _, update := range badUpdates {
+		satisfiesRules := true
+		for _, rule := range rules {
+			lValid := slices.Index(update, rule.l)
+			rValid := slices.Index(update, rule.r)
+			if lValid == -1 || rValid == -1 {
+				continue
+			}
+			if lValid >= rValid {
+				// Make update conform to rule.
+				update[lValid], update[rValid] = update[rValid], update[lValid]
+			}
+
+		}
+		if satisfiesRules {
+			sum += update[len(update)/2]
+		}
+	}
+
+	return computePart1(rules, badUpdates)
 }
