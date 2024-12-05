@@ -56,9 +56,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(rules)
-	fmt.Println(updates)
-
 	sum, err := compute(rules, updates)
 	if err != nil {
 		log.Fatal(err)
@@ -130,10 +127,14 @@ func compute(rules []rule, updates [][]int) (int, error) {
 				continue
 			}
 			if lValid < rValid {
-				fmt.Printf("Update %v satisfies rule %v\n", update, rule)
+				if *verbose {
+					fmt.Printf("Update %v satisfies rule %v\n", update, rule)
+				}
 			} else {
 				satisfiesRules = false
-				fmt.Printf("Update %v does not satisfy rule %v\n", update, rule)
+				if *verbose {
+					fmt.Printf("Update %v does not satisfy rule %v\n", update, rule)
+				}
 			}
 		}
 		if satisfiesRules {
