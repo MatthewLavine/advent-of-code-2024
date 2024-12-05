@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"runtime/pprof"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -18,6 +20,10 @@ var (
 	enablePprof = flag.Bool("pprof", false, "Enable pprof")
 	verbose     = flag.Bool("v", false, "Enable verbose output")
 )
+
+type rule struct {
+	l, r int
+}
 
 func main() {
 	flag.Parse()
@@ -44,7 +50,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	rules, updates, err := parseInput(input)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(rules)
+	fmt.Println(updates)
 }
 
 func readInputFile(file string) (string, error) {
@@ -53,4 +65,48 @@ func readInputFile(file string) (string, error) {
 		return "", err
 	}
 	return string(bytes), nil
+}
+
+func parseInput(input string) ([]rule, [][]int, error) {
+	var rules []rule
+	var updates [][]int
+	for _, line := range strings.Split(input, "\n") {
+		if strings.Contains(line, "|") {
+			rawRule := strings.Split(line, "|")
+			l, err := strconv.Atoi(rawRule[0])
+			if err != nil {
+				return nil, nil, err
+			}
+			r, err := strconv.Atoi(rawRule[1])
+			if err != nil {
+				return nil, nil, err
+			}
+			rule := rule{
+				l: l,
+				r: r,
+			}
+			rules = append(rules, rule)
+		}
+		if strings.Contains(line, ",") {
+			newUpdates, err := stringListToIntList(strings.Split(line, ","))
+			if err != nil {
+				return nil, nil, err
+			}
+			updates = append(updates, newUpdates)
+		}
+		continue
+	}
+	return rules, updates, nil
+}
+
+func stringListToIntList(strList []string) ([]int, error) {
+	var intList []int
+	for _, str := range strList {
+		i, err := strconv.Atoi(str)
+		if err != nil {
+			return nil, err
+		}
+		intList = append(intList, i)
+	}
+	return intList, nil
 }
