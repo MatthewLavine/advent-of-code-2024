@@ -9,6 +9,9 @@ import (
 	"slices"
 	"strconv"
 	"strings"
+	"time"
+
+	"golang.org/x/exp/rand"
 )
 
 const (
@@ -173,17 +176,12 @@ nextUpdate:
 	var sum int
 	for _, update := range badUpdates {
 		satisfiesRules := true
-		for _, rule := range rules {
-			lValid := slices.Index(update, rule.l)
-			rValid := slices.Index(update, rule.r)
-			if lValid == -1 || rValid == -1 {
-				continue
-			}
-			if lValid >= rValid {
-				// Make update conform to rule.
-				update[lValid], update[rValid] = update[rValid], update[lValid]
-			}
+		for _ = range []int{0, 1, 2, 3, 4} {
+			shuffle(rules) // I'm so sorry.
+			for _, rule := range rules {
+				makeUpdateSatisfyRule(update, rule)
 
+			}
 		}
 		if satisfiesRules {
 			sum += update[len(update)/2]
@@ -191,4 +189,24 @@ nextUpdate:
 	}
 
 	return computePart1(rules, badUpdates)
+}
+
+func makeUpdateSatisfyRule(update []int, rule rule) []int {
+	lValid := slices.Index(update, rule.l)
+	rValid := slices.Index(update, rule.r)
+	if lValid == -1 || rValid == -1 {
+		return update
+	}
+	if lValid >= rValid {
+		update[lValid], update[rValid] = update[rValid], update[lValid]
+	}
+	return update
+}
+
+func shuffle(slice []rule) {
+	r := rand.New(rand.NewSource(uint64(time.Now().Unix())))
+	for n := len(slice); n > 0; n-- {
+		randIndex := r.Intn(n)
+		slice[n-1], slice[randIndex] = slice[randIndex], slice[n-1]
+	}
 }
