@@ -19,10 +19,6 @@ var (
 	verbose     = flag.Bool("v", false, "Enable verbose output")
 )
 
-type rule struct {
-	l, r int
-}
-
 func main() {
 	flag.Parse()
 
