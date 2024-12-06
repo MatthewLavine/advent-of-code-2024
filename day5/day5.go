@@ -173,18 +173,13 @@ nextUpdate:
 			}
 		}
 	}
-	var sum int
 	for _, update := range badUpdates {
-		satisfiesRules := true
-		for _ = range []int{0, 1, 2, 3, 4} {
+		for range []int{0, 1, 2, 3, 4} {
 			shuffle(rules) // I'm so sorry.
 			for _, rule := range rules {
 				makeUpdateSatisfyRule(update, rule)
 
 			}
-		}
-		if satisfiesRules {
-			sum += update[len(update)/2]
 		}
 	}
 
