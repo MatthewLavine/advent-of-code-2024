@@ -122,7 +122,7 @@ func traverse(m [][]string, startingCol, startingRow int) int {
 		}
 		if m[nextRow][nextCol] == "X" {
 			sequentialRevisits++
-			if sequentialRevisits == 10 {
+			if sequentialRevisits == 100 {
 				// Loop detected.
 				return -1
 			}
