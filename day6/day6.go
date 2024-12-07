@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"runtime/pprof"
+	"strings"
 )
 
 const (
@@ -44,7 +45,14 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	m, startingCol, startingRow, err := parseMap(input)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	positions := traverse(m, startingCol, startingRow)
+
+	fmt.Printf("Unique Positions: %d", positions)
 }
 
 func readInputFile(file string) (string, error) {
@@ -53,4 +61,36 @@ func readInputFile(file string) (string, error) {
 		return "", err
 	}
 	return string(bytes), nil
+}
+
+func parseMap(input string) ([][]string, int, int, error) {
+	rows := strings.Split(input, "\n")
+	m := make([][]string, len(rows))
+	startingCol := 0
+	startingRow := 0
+	for i, row := range rows {
+		cols := strings.Split(row, "")
+		m[i] = cols
+		for j, col := range cols {
+			if col == "^" {
+				startingCol = j
+				startingRow = i
+			}
+		}
+	}
+	return m, startingCol, startingRow, nil
+}
+
+func printMap(m [][]string) {
+	for _, row := range m {
+		fmt.Println(strings.Join(row, " "))
+	}
+}
+
+func traverse(m [][]string, col, row int) int {
+	uniquePositions := 0
+
+	printMap(m)
+
+	return uniquePositions
 }
