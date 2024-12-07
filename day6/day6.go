@@ -53,7 +53,11 @@ func main() {
 
 	positions := traverse(m, startingCol, startingRow)
 
-	fmt.Printf("Unique Positions: %d", positions)
+	fmt.Printf("Unique Positions: %d\n", positions)
+
+	blocks := part2(m, startingCol, startingRow)
+
+	fmt.Printf("New Blocks: %d\n", blocks)
 }
 
 func readInputFile(file string) (string, error) {
@@ -90,18 +94,22 @@ func printMap(m [][]string) {
 }
 
 func traverse(m [][]string, startingCol, startingRow int) int {
+	m = deepCopyMap(m)
 	uniquePositions := 0
+	sequentialRevisits := 0
 
 	currCol := startingCol
 	currRow := startingRow
 	direction := "up"
 
-	printMap(m)
+	if *verbose {
+		printMap(m)
+	}
 
 	for {
 		nextRow, nextCol := nextPos(direction, currRow, currCol)
 		if *verbose {
-			fmt.Printf("Curr: %d, %d, Next: %d, %d, Uniq: %d\n", currRow, currCol, nextRow, nextCol, uniquePositions)
+			fmt.Printf("Curr: %d, %d, Next: %d, %d, Uniq: %d, Sequential: %d\n", currRow, currCol, nextRow, nextCol, uniquePositions, sequentialRevisits)
 			printMap(m)
 		}
 		if nextRow < 0 || nextRow >= len(m) || nextCol < 0 || nextCol >= len(m[0]) {
@@ -112,7 +120,14 @@ func traverse(m [][]string, startingCol, startingRow int) int {
 			direction = turn(direction)
 			continue
 		}
-		if m[nextRow][nextCol] != "X" {
+		if m[nextRow][nextCol] == "X" {
+			sequentialRevisits++
+			if sequentialRevisits == 10 {
+				// Loop detected.
+				return -1
+			}
+		} else {
+			sequentialRevisits = 0
 			uniquePositions++
 		}
 		m[currRow][currCol] = "X"
@@ -123,8 +138,6 @@ func traverse(m [][]string, startingCol, startingRow int) int {
 			time.Sleep(100 * time.Millisecond)
 		}
 	}
-
-	printMap(m)
 
 	return uniquePositions
 }
@@ -169,4 +182,38 @@ func charForDirection(direction string) string {
 		return ">"
 	}
 	return ""
+}
+
+func part2(m [][]string, startingCol, startingRow int) int {
+	m = deepCopyMap(m)
+	blocks := 0
+
+	for i, row := range m {
+		for j, col := range row {
+			set := false
+			if col == "." {
+				set = true
+				m[i][j] = "#"
+			}
+			tmpM := deepCopyMap(m)
+			result := traverse(tmpM, startingCol, startingRow)
+			if result == -1 {
+				blocks++
+			}
+			if set {
+				m[i][j] = "."
+			}
+		}
+	}
+
+	return blocks
+}
+
+func deepCopyMap(m [][]string) [][]string {
+	newMap := make([][]string, len(m))
+	for i, row := range m {
+		newMap[i] = make([]string, len(row))
+		copy(newMap[i], row)
+	}
+	return newMap
 }
