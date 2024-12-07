@@ -191,6 +191,9 @@ func part2(m [][]string, startingCol, startingRow int) int {
 	for i, row := range m {
 		for j, col := range row {
 			set := false
+			if col != "." {
+				continue
+			}
 			if col == "." {
 				set = true
 				m[i][j] = "#"
