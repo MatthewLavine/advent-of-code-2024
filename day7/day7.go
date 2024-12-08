@@ -6,6 +6,8 @@ import (
 	"log"
 	"os"
 	"runtime/pprof"
+	"strconv"
+	"strings"
 )
 
 const (
@@ -44,7 +46,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Println(input)
+	data, err := parse(input)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	printData(data)
 }
 
 func readInputFile(file string) (string, error) {
@@ -53,4 +60,39 @@ func readInputFile(file string) (string, error) {
 		return "", err
 	}
 	return string(bytes), nil
+}
+
+func parse(input string) (map[int][]int, error) {
+	data := make(map[int][]int)
+
+	for _, line := range strings.Split(input, "\n") {
+		sections := strings.Split(line, ":")
+		if len(sections) != 2 {
+			return nil, fmt.Errorf("invalid input: %s", line)
+		}
+		sum, err := strconv.Atoi(sections[0])
+		if err != nil {
+			return nil, err
+		}
+		numbers := strings.Split(sections[1], " ")
+		data[sum] = make([]int, len(numbers))
+		for i, c := range numbers {
+			if c == "" {
+				continue
+			}
+			n, err := strconv.Atoi(c)
+			if err != nil {
+				return nil, err
+			}
+			data[sum][i] = n
+		}
+	}
+
+	return data, nil
+}
+
+func printData(data map[int][]int) {
+	for k, v := range data {
+		fmt.Printf("%d: %v\n", k, v)
+	}
 }
