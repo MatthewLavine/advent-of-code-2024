@@ -51,7 +51,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	printData(data)
+	sum, err := compute(data)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("Sum: %d\n", sum)
 }
 
 func readInputFile(file string) (string, error) {
@@ -75,8 +80,8 @@ func parse(input string) (map[int][]int, error) {
 			return nil, err
 		}
 		numbers := strings.Split(sections[1], " ")
-		data[sum] = make([]int, len(numbers))
-		for i, c := range numbers {
+		convertedNumbers := make([]int, 0)
+		for _, c := range numbers {
 			if c == "" {
 				continue
 			}
@@ -84,15 +89,76 @@ func parse(input string) (map[int][]int, error) {
 			if err != nil {
 				return nil, err
 			}
-			data[sum][i] = n
+			convertedNumbers = append(convertedNumbers, n)
 		}
+		data[sum] = convertedNumbers
 	}
 
 	return data, nil
 }
 
-func printData(data map[int][]int) {
+func compute(data map[int][]int) (int, error) {
+	sum := 0
+
 	for k, v := range data {
-		fmt.Printf("%d: %v\n", k, v)
+		sum += findOperatorsForTotal(k, v)
 	}
+
+	return sum, nil
+}
+
+func findOperatorsForTotal(total int, numbers []int) int {
+	if *verbose {
+		fmt.Println("--------------------")
+		fmt.Printf("%d: %v\n", total, numbers)
+	}
+
+	operators := []string{"+", "*"}
+
+	perms := generateOperatorPermutations(operators, len(numbers)-1)
+
+	if *verbose {
+		fmt.Printf("Perms: %v\n", perms)
+	}
+
+	for _, perm := range perms {
+		parsedPerms := strings.Split(perm, "")
+		sum := 0
+		for i, num := range numbers {
+			if i == 0 {
+				sum = num
+				continue
+			}
+			switch parsedPerms[i-1] {
+			case "+":
+				sum += num
+			case "*":
+				sum *= num
+			}
+		}
+
+		if sum == total {
+			if *verbose {
+				fmt.Printf("Found: %s\n", perm)
+			}
+			return sum
+		}
+	}
+
+	return 0
+}
+
+func generateOperatorPermutations(operators []string, length int) []string {
+	if length == 1 {
+		return operators
+	}
+
+	perms := make([]string, 0)
+	for _, op := range operators {
+		for _, p := range generateOperatorPermutations(operators, length-1) {
+			perms = append(perms, op+p)
+		}
+	}
+
+	return perms
 }
