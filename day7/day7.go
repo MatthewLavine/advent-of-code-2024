@@ -19,6 +19,9 @@ var (
 	demo        = flag.Bool("demo", false, "Use demo input")
 	enablePprof = flag.Bool("pprof", false, "Enable pprof")
 	verbose     = flag.Bool("v", false, "Enable verbose output")
+
+	partOneOperators = []string{"+", "*"}
+	partTwoOperators = []string{"+", "*", "|"}
 )
 
 func main() {
@@ -51,12 +54,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	sum, err := compute(data)
+	partOneSum, partTwoSum, err := compute(data)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Sum: %d\n", sum)
+	fmt.Printf("Part One: %d\n", partOneSum)
+	fmt.Printf("Part Two: %d\n", partTwoSum)
 }
 
 func readInputFile(file string) (string, error) {
@@ -97,35 +101,47 @@ func parse(input string) (map[int][]int, error) {
 	return data, nil
 }
 
-func compute(data map[int][]int) (int, error) {
-	sum := 0
+func compute(data map[int][]int) (int, int, error) {
+	partOneSum := 0
+	partTwoSum := 0
 
 	for k, v := range data {
-		sum += findOperatorsForTotal(k, v)
+		c, err := computeWithPerms(k, v, partOneOperators)
+		if err != nil {
+			return -1, -1, err
+		}
+		partOneSum += c
 	}
 
-	return sum, nil
+	for k, v := range data {
+		c, err := computeWithPerms(k, v, partTwoOperators)
+		if err != nil {
+			return -1, -1, err
+		}
+		partTwoSum += c
+	}
+
+	return partOneSum, partTwoSum, nil
 }
 
-func findOperatorsForTotal(total int, numbers []int) int {
+func computeWithPerms(total int, numbers []int, operators []string) (int, error) {
+	perms := generateOperatorPermutations(operators, len(numbers)-1)
 	if *verbose {
 		fmt.Println("--------------------")
 		fmt.Printf("%d: %v\n", total, numbers)
-	}
-
-	operators := []string{"+", "*"}
-
-	perms := generateOperatorPermutations(operators, len(numbers)-1)
-
-	if *verbose {
 		fmt.Printf("Perms: %v\n", perms)
 	}
-
 	for _, perm := range perms {
 		parsedPerms := strings.Split(perm, "")
+		if *verbose {
+			fmt.Printf("Parsed perms: %v\n", parsedPerms)
+		}
 		sum := 0
 		for i, num := range numbers {
-			if i == 0 {
+			if num == -1 {
+				continue
+			}
+			if sum == 0 {
 				sum = num
 				continue
 			}
@@ -134,18 +150,30 @@ func findOperatorsForTotal(total int, numbers []int) int {
 				sum += num
 			case "*":
 				sum *= num
+			case "|":
+				var err error
+				sum, err = concatNumbers(sum, num)
+				if err != nil {
+					return -1, err
+				}
+			default:
+				fmt.Printf("Invalid operator: %s\n", parsedPerms[i-1])
+				continue
 			}
+		}
+
+		if *verbose {
+			fmt.Printf("Sum: %v\n", sum)
 		}
 
 		if sum == total {
 			if *verbose {
-				fmt.Printf("Found: %s\n", perm)
+				fmt.Printf("Sum %v matches with perm: %s\n", sum, perm)
 			}
-			return sum
+			return sum, nil
 		}
 	}
-
-	return 0
+	return 0, nil
 }
 
 func generateOperatorPermutations(operators []string, length int) []string {
@@ -161,4 +189,18 @@ func generateOperatorPermutations(operators []string, length int) []string {
 	}
 
 	return perms
+}
+
+func concatNumbers(a, b int) (int, error) {
+	aStr := strconv.Itoa(a)
+	bStr := strconv.Itoa(b)
+
+	aStr += bStr
+
+	str, err := strconv.Atoi(aStr)
+	if err != nil {
+		return -1, err
+	}
+
+	return str, nil
 }
