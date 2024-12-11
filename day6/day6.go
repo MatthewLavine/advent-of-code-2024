@@ -187,6 +187,7 @@ func charForDirection(direction string) string {
 func part2(m [][]string, startingCol, startingRow int) int {
 	m = deepCopyMap(m)
 	blocks := 0
+	traversals := 0
 
 	for i, row := range m {
 		for j, col := range row {
@@ -200,6 +201,7 @@ func part2(m [][]string, startingCol, startingRow int) int {
 			}
 			tmpM := deepCopyMap(m)
 			result := traverse(tmpM, startingCol, startingRow)
+			traversals++
 			if result == -1 {
 				blocks++
 			}
@@ -207,6 +209,10 @@ func part2(m [][]string, startingCol, startingRow int) int {
 				m[i][j] = "."
 			}
 		}
+	}
+
+	if *verbose {
+		fmt.Printf("Traversals: %d\n", traversals)
 	}
 
 	return blocks
