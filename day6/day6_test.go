@@ -147,7 +147,7 @@ func TestTraverse(t *testing.T) {
 		if err != nil {
 			t.Fatalf("parseMap(%q) error = %v", test.input, err)
 		}
-		result := traverse(m, test.startingCol, test.startingRow)
+		result := traverse(m, test.startingCol, test.startingRow, 0, 0, 0)
 		if result != test.expected {
 			t.Errorf("traverse(%q, %d, %d) = %d; want %d", test.input, test.startingCol, test.startingRow, result, test.expected)
 		}
@@ -167,6 +167,6 @@ func BenchmarkTraverse(b *testing.B) {
 		{".", ".", ".", "#", "."},
 	}
 	for i := 0; i < b.N; i++ {
-		traverse(m, 2, 4)
+		traverse(m, 2, 4, 0, 0, 0)
 	}
 }
