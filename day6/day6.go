@@ -51,7 +51,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	positions := traverse(m, startingCol, startingRow)
+	positions := traverse(m, startingCol, startingRow, 0, 0, 0)
 
 	fmt.Printf("Unique Positions: %d\n", positions)
 
@@ -93,7 +93,11 @@ func printMap(m [][]string) {
 	fmt.Println()
 }
 
-func traverse(m [][]string, startingCol, startingRow int) int {
+func clear() {
+	fmt.Print("\033[H\033[2J")
+}
+
+func traverse(m [][]string, startingCol, startingRow, traversals, newCol, newRol int) int {
 	m = deepCopyMap(m)
 	uniquePositions := 0
 	sequentialRevisits := 0
@@ -109,6 +113,9 @@ func traverse(m [][]string, startingCol, startingRow int) int {
 	for {
 		nextRow, nextCol := nextPos(direction, currRow, currCol)
 		if *verbose {
+			clear()
+			fmt.Printf("Traversals: %d\n", traversals)
+			fmt.Printf("New Blocker: %d, %d\n", newCol, newRol)
 			fmt.Printf("Curr: %d, %d, Next: %d, %d, Uniq: %d, Sequential: %d\n", currRow, currCol, nextRow, nextCol, uniquePositions, sequentialRevisits)
 			printMap(m)
 		}
@@ -122,7 +129,7 @@ func traverse(m [][]string, startingCol, startingRow int) int {
 		}
 		if m[nextRow][nextCol] == "X" {
 			sequentialRevisits++
-			if sequentialRevisits == 100 {
+			if sequentialRevisits == 1000 {
 				// Loop detected.
 				return -1
 			}
@@ -135,7 +142,7 @@ func traverse(m [][]string, startingCol, startingRow int) int {
 		currRow = nextRow
 		m[nextRow][nextCol] = charForDirection(direction)
 		if *verbose {
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(50 * time.Millisecond)
 		}
 	}
 
@@ -200,7 +207,7 @@ func part2(m [][]string, startingCol, startingRow int) int {
 				m[i][j] = "#"
 			}
 			tmpM := deepCopyMap(m)
-			result := traverse(tmpM, startingCol, startingRow)
+			result := traverse(tmpM, startingCol, startingRow, traversals, i, j)
 			traversals++
 			if result == -1 {
 				blocks++
