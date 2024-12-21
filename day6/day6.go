@@ -129,7 +129,7 @@ func traverse(m [][]string, startingCol, startingRow, traversals, newCol, newRol
 		}
 		if m[nextRow][nextCol] == "X" {
 			sequentialRevisits++
-			if sequentialRevisits == 1000 {
+			if sequentialRevisits == 100 {
 				// Loop detected.
 				return -1
 			}
@@ -142,7 +142,7 @@ func traverse(m [][]string, startingCol, startingRow, traversals, newCol, newRol
 		currRow = nextRow
 		m[nextRow][nextCol] = charForDirection(direction)
 		if *verbose {
-			time.Sleep(50 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 		}
 	}
 
@@ -214,6 +214,9 @@ func part2(m [][]string, startingCol, startingRow int) int {
 			}
 			if set {
 				m[i][j] = "."
+			}
+			if *verbose {
+				time.Sleep(250 * time.Millisecond)
 			}
 		}
 	}
