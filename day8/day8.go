@@ -59,12 +59,13 @@ func main() {
 		printMap(data)
 	}
 
-	count, err := findAntinodes(data)
+	partOneCount, partTwoCount, err := findAntinodes(data)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("Antinode Count: %d\n", count)
+	fmt.Printf("Part One Antinode Count: %d\n", partOneCount)
+	fmt.Printf("Part Two Antinode Count: %d\n", partTwoCount)
 }
 
 func readInputFile(file string) (string, error) {
@@ -91,9 +92,10 @@ func printMap(m [][]string) {
 	fmt.Println()
 }
 
-func findAntinodes(m [][]string) (int, error) {
+func findAntinodes(m [][]string) (int, int, error) {
 	antennaCoordinates := make(map[string][]coordinates, 0)
-	antinodeCoordinates := make([]coordinates, 0)
+	partOneAntinodeCoordinates := make([]coordinates, 0)
+	partTwoAntinodeCoordinates := make([]coordinates, 0)
 	for i, row := range m {
 		for j, col := range row {
 			if antennaRegex.MatchString(col) {
@@ -120,18 +122,24 @@ func findAntinodes(m [][]string) (int, error) {
 				fmt.Println("----------")
 				fmt.Printf("Finding antinodes for antenna pair: %v\n", pair)
 			}
-			antinodes := findAntinodesForAntennaPair(m, pair)
+			partOneAntinodes := findPartOneAntinodesForAntennaPair(m, pair)
 			if *verbose {
-				fmt.Printf("Antinodes: %v\n", antinodes)
+				fmt.Printf("Part One Antinodes: %v\n", partOneAntinodes)
 			}
-			antinodeCoordinates = append(antinodeCoordinates, antinodes...)
+			partOneAntinodeCoordinates = append(partOneAntinodeCoordinates, partOneAntinodes...)
+			partTwoAntinodes := findPartTwoAntinodesForAntennaPair(m, pair)
+			if *verbose {
+				fmt.Printf("Part Two Antinodes: %v\n", partTwoAntinodes)
+			}
+			partTwoAntinodeCoordinates = append(partTwoAntinodeCoordinates, partTwoAntinodes...)
 		}
 	}
 	if *verbose {
 		fmt.Println("----------")
 	}
-	antinodeCoordinates = dedupe(antinodeCoordinates)
-	return len(antinodeCoordinates), nil
+	partOneAntinodeCoordinates = dedupe(partOneAntinodeCoordinates)
+	partTwoAntinodeCoordinates = dedupe(partTwoAntinodeCoordinates)
+	return len(partOneAntinodeCoordinates), len(partTwoAntinodeCoordinates), nil
 }
 
 func findMatchingAntennas(m [][]string, frequency string) []coordinates {
@@ -159,7 +167,10 @@ func generateAntennaPairs(antennas []coordinates) [][]coordinates {
 	return pairs
 }
 
-func findAntinodesForAntennaPair(m [][]string, antennas []coordinates) []coordinates {
+func findPartOneAntinodesForAntennaPair(m [][]string, antennas []coordinates) []coordinates {
+	if *verbose {
+		fmt.Println("Finding part one antinodes for antenna pair")
+	}
 	antinodes := make([]coordinates, 0)
 
 	diffX, diffY := coordinateDiff(antennas[0], antennas[1])
@@ -182,6 +193,39 @@ func findAntinodesForAntennaPair(m [][]string, antennas []coordinates) []coordin
 			fmt.Printf("Valid antinode: %v\n", antinodeTwo)
 		}
 		antinodes = append(antinodes, antinodeTwo)
+	}
+
+	return antinodes
+}
+
+func findPartTwoAntinodesForAntennaPair(m [][]string, antennas []coordinates) []coordinates {
+	if *verbose {
+		fmt.Println("Finding part two antinodes for antenna pair")
+	}
+	antinodes := make([]coordinates, 0)
+
+	diffX, diffY := coordinateDiff(antennas[0], antennas[1])
+
+	for i := 0; i < len(m); i++ {
+		candidateAntinode := coordinates{antennas[0].x + (diffX * i), antennas[0].y + (diffY * i)}
+		if *verbose {
+			fmt.Printf("Candidate antinode: %v\n", candidateAntinode)
+		}
+		if candidateAntinode.x >= 0 && candidateAntinode.y >= 0 && candidateAntinode.x < len(m) && candidateAntinode.y < len(m[0]) {
+			fmt.Printf("Valid antinode: %v\n", candidateAntinode)
+			antinodes = append(antinodes, candidateAntinode)
+		}
+	}
+
+	for i := 0; i < len(m); i++ {
+		candidateAntinode := coordinates{antennas[1].x - (diffX * i), antennas[1].y - (diffY * i)}
+		if *verbose {
+			fmt.Printf("Candidate antinode: %v\n", candidateAntinode)
+		}
+		if candidateAntinode.x >= 0 && candidateAntinode.y >= 0 && candidateAntinode.x < len(m) && candidateAntinode.y < len(m[0]) {
+			fmt.Printf("Valid antinode: %v\n", candidateAntinode)
+			antinodes = append(antinodes, candidateAntinode)
+		}
 	}
 
 	return antinodes
