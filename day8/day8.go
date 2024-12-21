@@ -212,7 +212,9 @@ func findPartTwoAntinodesForAntennaPair(m [][]string, antennas []coordinates) []
 			fmt.Printf("Candidate antinode: %v\n", candidateAntinode)
 		}
 		if candidateAntinode.x >= 0 && candidateAntinode.y >= 0 && candidateAntinode.x < len(m) && candidateAntinode.y < len(m[0]) {
-			fmt.Printf("Valid antinode: %v\n", candidateAntinode)
+			if *verbose {
+				fmt.Printf("Valid antinode: %v\n", candidateAntinode)
+			}
 			antinodes = append(antinodes, candidateAntinode)
 		}
 	}
@@ -223,7 +225,9 @@ func findPartTwoAntinodesForAntennaPair(m [][]string, antennas []coordinates) []
 			fmt.Printf("Candidate antinode: %v\n", candidateAntinode)
 		}
 		if candidateAntinode.x >= 0 && candidateAntinode.y >= 0 && candidateAntinode.x < len(m) && candidateAntinode.y < len(m[0]) {
-			fmt.Printf("Valid antinode: %v\n", candidateAntinode)
+			if *verbose {
+				fmt.Printf("Valid antinode: %v\n", candidateAntinode)
+			}
 			antinodes = append(antinodes, candidateAntinode)
 		}
 	}
