@@ -24,9 +24,9 @@ echo "Creating blank input files"
 touch $day_dir/input.txt
 touch $day_dir/demo.txt
 
-echo "Creating blank solution files"
+echo "Copying template solution files"
 
-touch $day_dir/day$1.go
-touch $day_dir/day$1_test.go
+cp template/dayX.go $day_dir/day$1.go
+cp template/dayX_test.go $day_dir/day$1_test.go
 
 echo "Done"
