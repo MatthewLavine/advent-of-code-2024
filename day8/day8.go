@@ -55,7 +55,9 @@ func main() {
 
 	data := parseMap(input)
 
-	printMap(data)
+	if *verbose {
+		printMap(data)
+	}
 
 	count, err := findAntinodes(data)
 	if err != nil {
